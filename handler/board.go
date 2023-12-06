@@ -19,5 +19,4 @@ func getBoard(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, obj)
-
 }
