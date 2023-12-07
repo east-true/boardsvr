@@ -29,8 +29,9 @@ func main() {
 		ctx.JSON(http.StatusOK, gin.H{"main": "hello"})
 	})
 
-	group := engine.Group("/api/board")
-	handler.Board(group)
+	defaultGroup := engine.Group("/api")
+	boardGroup := defaultGroup.Group("/board")
+	handler.Board(boardGroup)
 
 	engine.Run(":50007")
 }
