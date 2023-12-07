@@ -7,8 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Board(g *gin.RouterGroup) {
-	g.GET("", getBoard)
+func Board(base *gin.RouterGroup) {
+	board := base.Group("/board")
+	{
+		board.GET("", getBoard)
+	}
 }
 
 func getBoard(ctx *gin.Context) {
