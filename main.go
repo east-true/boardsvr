@@ -4,6 +4,7 @@ import (
 	"boardsvr/handler"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +16,7 @@ func main() {
 	engine := gin.Default()
 
 	engine.Use(gin.Logger())
+	engine.Use(cors.Default())
 	engine.Use(func(ctx *gin.Context) {
 		for key, val := range headers {
 			reqVal := ctx.Request.Header.Get(key)
