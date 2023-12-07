@@ -1,38 +1,22 @@
 package main
 
 import (
-	"boardsvr/handler"
-	"net/http"
-
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+	"boardsvr/db"
 )
 
-var headers map[string]string = map[string]string{
-	"Content-Type": "application/json; charset=utf-8",
-}
-
 func main() {
-	engine := gin.Default()
-
-	engine.Use(gin.Logger())
-	engine.Use(cors.Default())
-	engine.Use(func(ctx *gin.Context) {
-		for key, val := range headers {
-			reqVal := ctx.Request.Header.Get(key)
-			if reqVal != val {
-				ctx.Status(http.StatusBadRequest)
-				return
-			}
-		}
+	svr := new(Server)
+	db, err := db.New(&db.Config{
+		Driver:   db.DRIVER_MYSQL,
+		Username: "root",
+		Pwd:      "",
+		IP:       "127.0.0.1",
+		Port:     db.MYSQL_DEFAULT_PORT,
+		DB:       "boardsvr",
 	})
+	if err != nil {
+		panic(err)
+	}
 
-	engine.GET("", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{"main": "hello"})
-	})
-
-	base := engine.Group("/api")
-	handler.Board(base)
-
-	engine.Run(":50007")
+	svr.Run(db)
 }
