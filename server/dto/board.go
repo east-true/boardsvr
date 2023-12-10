@@ -3,13 +3,9 @@ package dto
 import "time"
 
 type Board struct {
-	id      int
-	Title   string
-	Content string
-	Author  User
-	Created time.Time
-}
-
-func (b *Board) GetID() int {
-	return b.id
+	Id      int       `json:"board_id"`
+	Title   string    `json:"title"`
+	Content string    `json:"content"`
+	Author  string    `json:"author"`
+	Created time.Time `json:"created"`
 }
