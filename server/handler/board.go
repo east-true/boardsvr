@@ -42,7 +42,12 @@ func AddBoard(ctx *gin.Context) {
 	if err := ctx.Bind(obj); err != nil {
 		ctx.Status(http.StatusUnprocessableEntity)
 	} else {
-		// TODO : insert
+		err = model.InsertBoard(obj)
+		if err != nil {
+			fmt.Println(err)
+			ctx.Status(http.StatusInternalServerError)
+			return
+		}
 
 		ctx.JSON(http.StatusOK, nil)
 	}
