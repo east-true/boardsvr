@@ -23,6 +23,10 @@ func Load(cfg *mysql.Config) error {
 
 }
 
+func Close() {
+	database.Close()
+}
+
 func GetInstance() (*sql.Conn, error) {
 	if database == nil {
 		return nil, errors.New("not loaded database instance")
