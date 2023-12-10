@@ -1,6 +1,7 @@
 package main
 
 import (
+	"boardsvr/db"
 	"boardsvr/handler"
 	"net/http"
 
@@ -12,6 +13,12 @@ func main() {
 	svr := &Server{
 		ListenPort: ":50007",
 		Prefix:     "/api",
+
+		db: &db.DB{
+			User:        "test",
+			Password:    "testtest",
+			Destination: "127.0.0.1:3306",
+		},
 	}
 
 	svr.Run()
@@ -24,9 +31,17 @@ var headers map[string]string = map[string]string{
 type Server struct {
 	ListenPort string
 	Prefix     string
+
+	db *db.DB
 }
 
 func (svr *Server) Run() {
+	if err := svr.db.Load(); err != nil {
+		panic(err)
+	} else {
+		defer svr.db.Close()
+	}
+
 	engine := gin.Default()
 	engine.Use(gin.Logger())
 	engine.Use(gin.Recovery())
