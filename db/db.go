@@ -32,10 +32,9 @@ func Parse(sql string) string {
 }
 
 type DB struct {
-	User         string
-	Password     string
-	Destination  string
-	QueryTimeout time.Duration
+	User        string
+	Password    string
+	Destination string
 
 	db *sql.DB
 }
