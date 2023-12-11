@@ -3,10 +3,13 @@ package main
 import (
 	"boardsvr/db"
 	"boardsvr/server"
+
+	"github.com/alecthomas/kong"
 )
 
 func main() {
 	svr := &server.Server{
+		ConfigPath: "./config/config.json",
 		ListenPort: ":50007",
 		Prefix:     "/api",
 
@@ -17,5 +20,7 @@ func main() {
 		},
 	}
 
+	ctx := kong.Parse(svr)
+	ctx.Command()
 	svr.Run()
 }

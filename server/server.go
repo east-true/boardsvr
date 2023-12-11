@@ -14,6 +14,7 @@ var headers map[string]string = map[string]string{
 }
 
 type Server struct {
+	ConfigPath string
 	ListenPort string
 	Prefix     string
 	DB         *db.DB
