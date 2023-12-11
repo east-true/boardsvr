@@ -16,9 +16,9 @@ func SelectBoardAll() ([]*dto.Board, error) {
 
 	ctx := context.Background()
 	sqlStr := `
-		select id, title, content, author, ts 
+		select id, title, content, author, updated 
 		from board 
-		order by ts desc
+		order by updated desc
 	`
 	fmt.Println(sqlStr)
 	rows, err := conn.QueryContext(ctx, db.Parse(sqlStr))
@@ -40,7 +40,6 @@ func SelectBoardAll() ([]*dto.Board, error) {
 	return boards, nil
 }
 
-// TODO : ts column rename to updated
 func SelectBoardByID(id int) (*dto.Board, error) {
 	conn, err := db.GetInstance()
 	if err != nil {
@@ -49,7 +48,7 @@ func SelectBoardByID(id int) (*dto.Board, error) {
 
 	ctx := context.Background()
 	sqlStr := `
-		select id, title, content, author, ts 
+		select id, title, content, author, updated 
 		from board 
 		where id = ?
 	`
@@ -76,10 +75,10 @@ func SelectBoardByAuthor(author string) ([]*dto.Board, error) {
 
 	ctx := context.Background()
 	sqlStr := `
-		select id, title, content, author, ts 
+		select id, title, content, author, updated 
 		from board 
 		where author = ?
-		order by ts desc
+		order by updated desc
 	`
 	fmt.Println(sqlStr)
 	rows, err := conn.QueryContext(ctx, db.Parse(sqlStr), author)
