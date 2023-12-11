@@ -5,7 +5,6 @@ import (
 	"boardsvr/server/model"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -71,20 +70,10 @@ func EditBoard(ctx *gin.Context) {
 }
 
 func RemoveBoard(ctx *gin.Context) {
-	val := ctx.Request.URL.Query().Get("board_id")
-	if val == "" {
-		ctx.Status(http.StatusUnprocessableEntity)
-		return
-	}
+	obj := new(dto.Board)
+	ctx.BindUri(obj) // TODO : test
 
-	id, err := strconv.Atoi(val)
-	if err != nil {
-		fmt.Println(err)
-		ctx.Status(http.StatusInternalServerError)
-		return
-	}
-
-	err = model.DeleteBoard(id)
+	err := model.DeleteBoard(obj.Id)
 	if err != nil {
 		fmt.Println(err)
 		ctx.Status(http.StatusInternalServerError)
