@@ -5,8 +5,8 @@ import (
 )
 
 type User struct {
-	ID      string
-	Pwd     string
-	Email   string
-	Created sql.NullTime
+	ID      string       `json:"user_id"`
+	Pwd     string       `json:"user_pwd"`
+	Email   string       `json:"user_email"`
+	Created sql.NullTime `json:"user_created"`
 }

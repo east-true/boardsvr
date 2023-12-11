@@ -7,6 +7,7 @@ import (
 	"errors"
 )
 
+// TODO : ts column rename to updated
 func SelectBoardByID(id string) (*dto.Board, error) {
 	conn, err := db.GetInstance()
 	if err != nil {
@@ -21,7 +22,7 @@ func SelectBoardByID(id string) (*dto.Board, error) {
 		return board, err
 	}
 
-	err = row.Scan(&board.Title, &board.Content, &board.Author, &board.Created)
+	err = row.Scan(&board.Title, &board.Content, &board.Author, &board.Updated)
 	if err != nil {
 		return board, err
 	}
@@ -45,7 +46,7 @@ func SelectBoardAll() ([]*dto.Board, error) {
 	boards := make([]*dto.Board, 0)
 	for rows.Next() {
 		board := new(dto.Board)
-		err = rows.Scan(&board.Title, &board.Content, &board.Author, &board.Created)
+		err = rows.Scan(&board.Title, &board.Content, &board.Author, &board.Updated)
 		if err != nil {
 			return nil, err
 		}
