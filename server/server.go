@@ -9,6 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func init() {
+	gin.SetMode(gin.ReleaseMode)
+}
+
 var headers map[string]string = map[string]string{
 	"Content-Type": "application/json; charset=utf-8",
 }
@@ -28,8 +32,6 @@ func (svr *Server) Run() {
 	}
 
 	engine := gin.Default()
-	engine.Use(gin.Logger())
-	engine.Use(gin.Recovery())
 	engine.Use(cors.Default())
 	engine.Use(func(ctx *gin.Context) {
 		for key, val := range headers {
@@ -48,10 +50,10 @@ func (svr *Server) Run() {
 	router := engine.Group(svr.Prefix)
 	board := router.Group("/board")
 	{
-		board.GET("/list", handler.GetBoardList)
-		board.GET("", handler.GetBoard)
+		board.GET("/", handler.GetBoardList)
+		board.GET("/:board_id", handler.GetBoard)
 		board.POST("/", handler.AddBoard)
-		board.PUT("/:board_id", handler.EditBoard)
+		board.PUT("/", handler.EditBoard)
 		board.DELETE("/:board_id", handler.RemoveBoard)
 	}
 
