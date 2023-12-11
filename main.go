@@ -1,36 +1,47 @@
 package main
 
 import (
-	"boardsvr/db"
 	"boardsvr/server"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/alecthomas/kong"
 )
 
 func main() {
 	var confPath string
-	if str, err := os.Executable(); err == nil {
+	path, err := os.Executable()
+	if err != nil {
 		fmt.Println(err)
-	} else {
-		confPath = filepath.Join(filepath.Dir(str), "config", "config.json")
+		return
+	}
+	dir := filepath.Dir(path)
+	confPath = filepath.Join(dir, "config", "config.json")
+
+	b, err := os.ReadFile(confPath)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 
-	svr := &server.Server{
-		ConfigPath: confPath,
-		ListenPort: ":50007",
-		Prefix:     "/api",
-
-		DB: &db.DB{
-			User:        "test",
-			Password:    "testtest",
-			Destination: "127.0.0.1:3306",
-		},
+	svr := new(server.Server)
+	err = json.Unmarshal(b, svr)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 
-	ctx := kong.Parse(svr)
-	ctx.Command()
+	// svr := &server.Server{
+	// 	ConfigPath: confPath,
+	// 	ListenPort: ":50007",
+	// 	Prefix:     "/api",
+
+	// 	DB: &db.DB{
+	// 		User:        "test",
+	// 		Password:    "testtest",
+	// 		Destination: "127.0.0.1:3306",
+	// 	},
+	// }
+
 	svr.Run()
 }
