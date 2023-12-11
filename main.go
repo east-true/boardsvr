@@ -3,13 +3,23 @@ package main
 import (
 	"boardsvr/db"
 	"boardsvr/server"
+	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/alecthomas/kong"
 )
 
 func main() {
+	var confPath string
+	if str, err := os.Executable(); err == nil {
+		fmt.Println(err)
+	} else {
+		confPath = filepath.Join(filepath.Dir(str), "config", "config.json")
+	}
+
 	svr := &server.Server{
-		ConfigPath: "./config/config.json",
+		ConfigPath: confPath,
 		ListenPort: ":50007",
 		Prefix:     "/api",
 
