@@ -31,17 +31,5 @@ func main() {
 		return
 	}
 
-	// svr := &server.Server{
-	// 	ConfigPath: confPath,
-	// 	ListenPort: ":50007",
-	// 	Prefix:     "/api",
-
-	// 	DB: &db.DB{
-	// 		User:        "test",
-	// 		Password:    "testtest",
-	// 		Destination: "127.0.0.1:3306",
-	// 	},
-	// }
-
 	svr.Run()
 }
