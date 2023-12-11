@@ -45,11 +45,12 @@ func (db *DB) Load() error {
 	}
 
 	cfg := &mysql.Config{
-		User:   db.User,
-		Passwd: db.Password,
-		Net:    "tcp",
-		Addr:   db.Destination,
-		DBName: "boardsvr",
+		User:      db.User,
+		Passwd:    db.Password,
+		Net:       "tcp",
+		Addr:      db.Destination,
+		DBName:    "boardsvr",
+		ParseTime: true,
 	}
 
 	if sqlDB, err := sql.Open("mysql", cfg.FormatDSN()); err != nil {

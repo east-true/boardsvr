@@ -29,7 +29,6 @@ func SelectBoardByID(id string) (*dto.Board, error) {
 	return board, nil
 }
 
-// TODO : fix err unsupported Scan, storing driver.Value type []uint8 into type *time.Time
 func SelectBoardAll() ([]*dto.Board, error) {
 	conn, err := db.GetInstance()
 	if err != nil {
