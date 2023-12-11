@@ -1,10 +1,12 @@
 package dto
 
-import "time"
+import (
+	"database/sql"
+)
 
 type User struct {
 	ID      string
 	Pwd     string
 	Email   string
-	Created time.Time
+	Created sql.NullTime
 }

@@ -1,11 +1,11 @@
 package dto
 
-import "time"
+import "database/sql"
 
 type Board struct {
-	Id      int       `json:"board_id"`
-	Title   string    `json:"title"`
-	Content string    `json:"content"`
-	Author  string    `json:"author"`
-	Created time.Time `json:"created"`
+	Id      int          `json:"board_id"`
+	Title   string       `json:"title"`
+	Content string       `json:"content"`
+	Author  string       `json:"author"`
+	Created sql.NullTime `json:"created"`
 }
