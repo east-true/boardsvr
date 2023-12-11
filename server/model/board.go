@@ -80,3 +80,53 @@ func InsertBoard(board *dto.Board) error {
 
 	return nil
 }
+
+func UpdateBoard(board *dto.Board) error {
+	conn, err := db.GetInstance()
+	if err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	sql := `update board set title = ?, board = ? where id = ?`
+	res, err := conn.ExecContext(ctx, db.Parse(sql), board.Title, board.Content, board.Id)
+	if err != nil {
+		return err
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if n < 1 {
+		return errors.New("no affected rows")
+	}
+
+	return nil
+}
+
+func DeleteBoard(id int) error {
+	conn, err := db.GetInstance()
+	if err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	sql := `delete from board where id = ?`
+	res, err := conn.ExecContext(ctx, db.Parse(sql), id)
+	if err != nil {
+		return err
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if n < 1 {
+		return errors.New("no affected rows")
+	}
+
+	return nil
+}
