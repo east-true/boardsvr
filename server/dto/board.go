@@ -6,6 +6,6 @@ type Board struct {
 	Id      int          `json:"board_id" uri:"board_id"`
 	Title   string       `json:"title"`
 	Content string       `json:"content"`
-	Author  string       `json:"author"`
+	Author  string       `json:"author" form:"author"`
 	Updated sql.NullTime `json:"updated"`
 }

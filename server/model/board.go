@@ -5,7 +5,40 @@ import (
 	"boardsvr/server/dto"
 	"context"
 	"errors"
+	"fmt"
 )
+
+func SelectBoardAll() ([]*dto.Board, error) {
+	conn, err := db.GetInstance()
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := context.Background()
+	sqlStr := `
+		select id, title, content, author, ts 
+		from board 
+		order by ts desc
+	`
+	fmt.Println(sqlStr)
+	rows, err := conn.QueryContext(ctx, db.Parse(sqlStr))
+	if err != nil {
+		return nil, err
+	}
+
+	boards := make([]*dto.Board, 0)
+	for rows.Next() {
+		board := new(dto.Board)
+		err = rows.Scan(&board.Id, &board.Title, &board.Content, &board.Author, &board.Updated)
+		if err != nil {
+			return nil, err
+		}
+
+		boards = append(boards, board)
+	}
+
+	return boards, nil
+}
 
 // TODO : ts column rename to updated
 func SelectBoardByID(id int) (*dto.Board, error) {
@@ -15,9 +48,12 @@ func SelectBoardByID(id int) (*dto.Board, error) {
 	}
 
 	ctx := context.Background()
-	sqlStr := `select id, title, content, author, ts 
-				from board 
-				where id = ?`
+	sqlStr := `
+		select id, title, content, author, ts 
+		from board 
+		where id = ?
+	`
+	fmt.Println(sqlStr)
 	board := new(dto.Board)
 	row := conn.QueryRowContext(ctx, db.Parse(sqlStr), id)
 	if row.Err() != nil {
@@ -32,17 +68,21 @@ func SelectBoardByID(id int) (*dto.Board, error) {
 	return board, nil
 }
 
-func SelectBoardAll() ([]*dto.Board, error) {
+func SelectBoardByAuthor(author string) ([]*dto.Board, error) {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return nil, err
 	}
 
 	ctx := context.Background()
-	sqlStr := `select id, title, content, author, ts 
-				from board 
-				order by ts desc`
-	rows, err := conn.QueryContext(ctx, db.Parse(sqlStr))
+	sqlStr := `
+		select id, title, content, author, ts 
+		from board 
+		where author = ?
+		order by ts desc
+	`
+	fmt.Println(sqlStr)
+	rows, err := conn.QueryContext(ctx, db.Parse(sqlStr), author)
 	if err != nil {
 		return nil, err
 	}
@@ -69,6 +109,7 @@ func InsertBoard(board *dto.Board) error {
 
 	ctx := context.Background()
 	sqlStr := `insert into board(title, content, author) values(?,?,?)`
+	fmt.Println(sqlStr)
 	res, err := conn.ExecContext(ctx, db.Parse(sqlStr), board.Title, board.Content, board.Author)
 	if err != nil {
 		return err
@@ -94,6 +135,7 @@ func UpdateBoard(board *dto.Board) error {
 
 	ctx := context.Background()
 	sqlStr := `update board set title = ?, content = ? where id = ?`
+	fmt.Println(sqlStr)
 	res, err := conn.ExecContext(ctx, db.Parse(sqlStr), board.Title, board.Content, board.Id)
 	if err != nil {
 		return err
@@ -119,6 +161,7 @@ func DeleteBoard(id int) error {
 
 	ctx := context.Background()
 	sqlStr := `delete from board where id = ?`
+	fmt.Println(sqlStr)
 	res, err := conn.ExecContext(ctx, db.Parse(sqlStr), id)
 	if err != nil {
 		return err

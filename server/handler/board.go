@@ -10,11 +10,24 @@ import (
 )
 
 func GetBoardList(ctx *gin.Context) {
-	res, err := model.SelectBoardAll()
-	if err != nil {
-		fmt.Println(err)
-		ctx.Status(http.StatusInternalServerError)
-		return
+	obj := new(dto.Board)
+	ctx.BindQuery(obj)
+	var res []*dto.Board
+	var err error
+	if obj.Author == "" {
+		res, err = model.SelectBoardAll()
+		if err != nil {
+			fmt.Println(err)
+			ctx.Status(http.StatusInternalServerError)
+			return
+		}
+	} else {
+		res, err = model.SelectBoardByAuthor(obj.Author)
+		if err != nil {
+			fmt.Println(err)
+			ctx.Status(http.StatusInternalServerError)
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusOK, res)
