@@ -48,6 +48,8 @@ func (svr *Server) Run() {
 	})
 
 	router := engine.Group(svr.Prefix)
+	router.POST("/login", handler.Login)
+	router.POST("/logout", handler.Logout)
 	board := router.Group("/board")
 	{
 		board.GET("", handler.GetBoardList)
@@ -58,10 +60,10 @@ func (svr *Server) Run() {
 	}
 	user := router.Group("/user")
 	{
-		user.GET("")
-		user.POST("")
-		user.PUT("")
-		user.DELETE("")
+		// user.GET("", handler.GetUser)
+		user.POST("", handler.AddUser)
+		user.PUT("", handler.EditUser)
+		user.DELETE("", handler.RemoveUser)
 	}
 
 	engine.Run(svr.ListenPort)
