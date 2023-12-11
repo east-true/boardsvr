@@ -1,1 +1,10 @@
-{"test":"test"}
+{
+    "ConfigPath": "confPath",
+    "ListenPort": ":50007",
+    "Prefix":     "/api",
+    "DB": {
+        "User":        "test",
+        "Password":    "testtest",
+        "Destination": "127.0.0.1:3306"
+    }
+}
