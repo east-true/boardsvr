@@ -2,18 +2,23 @@ package handler
 
 import (
 	"boardsvr/server/dto"
+	"boardsvr/server/model"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// TODO
-func GetUser(ctx *gin.Context) {
-	obj := new(dto.User)
-	ctx.JSON(http.StatusOK, obj)
-}
-
 func AddUser(ctx *gin.Context) {
+	obj := new(dto.User)
+	ctx.BindJSON(obj)
+
+	err := model.InsertUser(obj)
+	if err != nil {
+		fmt.Println(err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
 
 	ctx.Status(http.StatusOK)
 }
