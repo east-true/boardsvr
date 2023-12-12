@@ -60,7 +60,6 @@ func (svr *Server) Run() {
 	}
 	user := router.Group("/user")
 	{
-		// user.GET("", handler.GetUser)
 		user.POST("", handler.AddUser)
 		user.PUT("", handler.EditUser)
 		user.DELETE("", handler.RemoveUser)
