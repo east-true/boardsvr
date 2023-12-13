@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"boardsvr/server/dto"
 	"boardsvr/server/model"
 	"fmt"
 	"net/http"
@@ -10,9 +9,9 @@ import (
 )
 
 func GetBoardList(ctx *gin.Context) {
-	obj := new(dto.Board)
+	obj := new(model.Board)
 	ctx.BindQuery(obj)
-	var res []*dto.Board
+	var res []*model.Board
 	var err error
 	if obj.Author == "" {
 		res, err = model.SelectBoardAll()
@@ -34,7 +33,7 @@ func GetBoardList(ctx *gin.Context) {
 }
 
 func GetBoard(ctx *gin.Context) {
-	obj := new(dto.Board)
+	obj := new(model.Board)
 	ctx.BindUri(obj)
 	res, err := model.SelectBoardByID(obj.Id)
 	if err != nil {
@@ -47,7 +46,7 @@ func GetBoard(ctx *gin.Context) {
 }
 
 func AddBoard(ctx *gin.Context) {
-	obj := new(dto.Board)
+	obj := new(model.Board)
 	if err := ctx.Bind(obj); err != nil {
 		ctx.Status(http.StatusUnprocessableEntity)
 	} else {
@@ -63,7 +62,7 @@ func AddBoard(ctx *gin.Context) {
 }
 
 func EditBoard(ctx *gin.Context) {
-	obj := new(dto.Board)
+	obj := new(model.Board)
 	if err := ctx.BindJSON(obj); err != nil {
 		ctx.Status(http.StatusUnprocessableEntity)
 	} else {
@@ -79,7 +78,7 @@ func EditBoard(ctx *gin.Context) {
 }
 
 func RemoveBoard(ctx *gin.Context) {
-	obj := new(dto.Board)
+	obj := new(model.Board)
 	ctx.BindUri(obj)
 	err := model.DeleteBoard(obj.Id)
 	if err != nil {

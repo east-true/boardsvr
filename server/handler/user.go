@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"boardsvr/server/dto"
 	"boardsvr/server/model"
 	"fmt"
 	"net/http"
@@ -10,7 +9,7 @@ import (
 )
 
 func AddUser(ctx *gin.Context) {
-	obj := new(dto.User)
+	obj := new(model.User)
 	ctx.BindJSON(obj)
 
 	err := model.InsertUser(obj)

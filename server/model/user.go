@@ -2,13 +2,20 @@ package model
 
 import (
 	"boardsvr/db"
-	"boardsvr/server/dto"
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 )
 
-func SelectUserByID(id string) (*dto.User, error) {
+type User struct {
+	ID      string       `json:"user_id"`
+	Pwd     string       `json:"user_pwd"`
+	Email   string       `json:"user_email"`
+	Created sql.NullTime `json:"user_created"`
+}
+
+func SelectUserByID(id string) (*User, error) {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return nil, err
@@ -26,7 +33,7 @@ func SelectUserByID(id string) (*dto.User, error) {
 		return nil, row.Err()
 	}
 
-	user := new(dto.User)
+	user := new(User)
 	err = row.Scan(&user.ID, &user.Pwd, &user.Email, &user.Created)
 	if err != nil {
 		return nil, err
@@ -35,7 +42,7 @@ func SelectUserByID(id string) (*dto.User, error) {
 	return user, err
 }
 
-func InsertUser(user *dto.User) error {
+func InsertUser(user *User) error {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return err
@@ -61,7 +68,7 @@ func InsertUser(user *dto.User) error {
 	return nil
 }
 
-func UpdateUser(user *dto.User) error {
+func UpdateUser(user *User) error {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return err

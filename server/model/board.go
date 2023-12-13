@@ -2,13 +2,21 @@ package model
 
 import (
 	"boardsvr/db"
-	"boardsvr/server/dto"
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 )
 
-func SelectBoardAll() ([]*dto.Board, error) {
+type Board struct {
+	Id      int          `json:"board_id" uri:"board_id"`
+	Title   string       `json:"title"`
+	Content string       `json:"content"`
+	Author  string       `json:"author" form:"author"`
+	Updated sql.NullTime `json:"updated"`
+}
+
+func SelectBoardAll() ([]*Board, error) {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return nil, err
@@ -26,9 +34,9 @@ func SelectBoardAll() ([]*dto.Board, error) {
 		return nil, err
 	}
 
-	boards := make([]*dto.Board, 0)
+	boards := make([]*Board, 0)
 	for rows.Next() {
-		board := new(dto.Board)
+		board := new(Board)
 		err = rows.Scan(&board.Id, &board.Title, &board.Content, &board.Author, &board.Updated)
 		if err != nil {
 			return nil, err
@@ -40,7 +48,7 @@ func SelectBoardAll() ([]*dto.Board, error) {
 	return boards, nil
 }
 
-func SelectBoardByID(id int) (*dto.Board, error) {
+func SelectBoardByID(id int) (*Board, error) {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return nil, err
@@ -53,7 +61,7 @@ func SelectBoardByID(id int) (*dto.Board, error) {
 		where id = ?
 	`
 	fmt.Println(sqlStr)
-	board := new(dto.Board)
+	board := new(Board)
 	row := conn.QueryRowContext(ctx, db.Parse(sqlStr), id)
 	if row.Err() != nil {
 		return board, err
@@ -67,7 +75,7 @@ func SelectBoardByID(id int) (*dto.Board, error) {
 	return board, nil
 }
 
-func SelectBoardByAuthor(author string) ([]*dto.Board, error) {
+func SelectBoardByAuthor(author string) ([]*Board, error) {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return nil, err
@@ -86,9 +94,9 @@ func SelectBoardByAuthor(author string) ([]*dto.Board, error) {
 		return nil, err
 	}
 
-	boards := make([]*dto.Board, 0)
+	boards := make([]*Board, 0)
 	for rows.Next() {
-		board := new(dto.Board)
+		board := new(Board)
 		err = rows.Scan(&board.Id, &board.Title, &board.Content, &board.Author, &board.Updated)
 		if err != nil {
 			return nil, err
@@ -100,7 +108,7 @@ func SelectBoardByAuthor(author string) ([]*dto.Board, error) {
 	return boards, nil
 }
 
-func InsertBoard(board *dto.Board) error {
+func InsertBoard(board *Board) error {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return err
@@ -126,7 +134,7 @@ func InsertBoard(board *dto.Board) error {
 	return nil
 }
 
-func UpdateBoard(board *dto.Board) error {
+func UpdateBoard(board *Board) error {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return err
