@@ -7,82 +7,162 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 )
 
-type Board struct {
-	Id      int          `json:"board_id" uri:"board_id"`
-	Title   string       `json:"title"`
-	Content string       `json:"content"`
-	Author  string       `json:"author" form:"author"`
-	Updated sql.NullTime `json:"updated"`
+type BoardDTO struct {
+	Id      int       `json:"board_id" uri:"board_id"`
+	Title   string    `json:"title"`
+	Content string    `json:"content"`
+	Author  string    `json:"author" form:"author"`
+	Updated time.Time `json:"updated"`
 }
 
-func SelectBoardAll() ([]*Board, error) {
-	conn, err := db.GetInstance()
+func (dto *BoardDTO) ToEntity() *BoardEntity {
+	var id sql.NullInt32
+	var title sql.NullString
+	var content sql.NullString
+	var author sql.NullString
+	var updated sql.NullTime
+
+	err := id.Scan(dto.Id)
 	if err != nil {
-		return nil, err
+		return nil
 	}
 
-	ctx := context.Background()
+	err = title.Scan(dto.Title)
+	if err != nil {
+		return nil
+	}
+
+	err = content.Scan(dto.Content)
+	if err != nil {
+		return nil
+	}
+
+	err = author.Scan(dto.Author)
+	if err != nil {
+		return nil
+	}
+
+	err = updated.Scan(dto.Updated)
+	if err != nil {
+		return nil
+	}
+
+	return &BoardEntity{
+		Id:      id,
+		Title:   title,
+		Content: content,
+		Author:  author,
+		Updated: updated,
+	}
+}
+
+type BoardEntity struct {
+	Id      sql.NullInt32
+	Title   sql.NullString
+	Content sql.NullString
+	Author  sql.NullString
+	Updated sql.NullTime
+}
+
+func (entity *BoardEntity) ToDTO() *BoardDTO {
+	if !entity.Id.Valid {
+		return nil
+	}
+
+	if !entity.Title.Valid {
+		return nil
+	}
+
+	if !entity.Content.Valid {
+		return nil
+	}
+
+	if !entity.Author.Valid {
+		return nil
+	}
+
+	if !entity.Updated.Valid {
+		return nil
+	}
+
+	return &BoardDTO{
+		Id:      int(entity.Id.Int32),
+		Title:   entity.Title.String,
+		Content: entity.Content.String,
+		Author:  entity.Content.String,
+		Updated: entity.Updated.Time,
+	}
+}
+
+func SelectBoardAll() ([]*BoardEntity, error) {
+	entitys := make([]*BoardEntity, 0)
+	conn, err := db.GetInstance()
+	if err != nil {
+		return entitys, err
+	}
+
 	sqlStr := `
-		select id, title, content, author, updated 
-		from board 
-		order by updated desc
+	select id, title, content, author, updated 
+	from board 
+	order by updated desc
 	`
 	fmt.Println(sqlStr)
+	ctx := context.Background()
 	rows, err := conn.QueryContext(ctx, helper.ParseSql(sqlStr))
 	if err != nil {
-		return nil, err
+		return entitys, err
 	}
 
-	boards := make([]*Board, 0)
 	for rows.Next() {
-		board := new(Board)
-		err = rows.Scan(&board.Id, &board.Title, &board.Content, &board.Author, &board.Updated)
+		entity := new(BoardEntity)
+		err = rows.Scan(&entity.Id, &entity.Title, &entity.Content, &entity.Author, &entity.Updated)
 		if err != nil {
-			return nil, err
+			return entitys, err
 		}
 
-		boards = append(boards, board)
+		entitys = append(entitys, entity)
 	}
 
-	return boards, nil
+	return entitys, nil
 }
 
-func SelectBoardByID(id int) (*Board, error) {
+func SelectBoardByID(id int) (*BoardEntity, error) {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return nil, err
 	}
 
-	ctx := context.Background()
 	sqlStr := `
 		select id, title, content, author, updated 
 		from board 
 		where id = ?
 	`
 	fmt.Println(sqlStr)
-	board := new(Board)
+	ctx := context.Background()
 	row := conn.QueryRowContext(ctx, helper.ParseSql(sqlStr), id)
 	if row.Err() != nil {
-		return board, err
+		return nil, err
 	}
 
-	err = row.Scan(&board.Title, &board.Content, &board.Author, &board.Updated)
-	if err != nil {
-		return board, err
-	}
-
-	return board, nil
-}
-
-func SelectBoardByAuthor(author string) ([]*Board, error) {
-	conn, err := db.GetInstance()
+	entity := new(BoardEntity)
+	err = row.Scan(&entity.Title, &entity.Content, &entity.Author, &entity.Updated)
 	if err != nil {
 		return nil, err
 	}
 
-	ctx := context.Background()
+	return entity, nil
+}
+
+func SelectBoardByAuthor(author string) ([]*BoardEntity, error) {
+	entitys := make([]*BoardEntity, 0)
+	conn, err := db.GetInstance()
+	if err != nil {
+		return entitys, err
+	}
+
 	sqlStr := `
 		select id, title, content, author, updated 
 		from board 
@@ -90,26 +170,26 @@ func SelectBoardByAuthor(author string) ([]*Board, error) {
 		order by updated desc
 	`
 	fmt.Println(sqlStr)
+	ctx := context.Background()
 	rows, err := conn.QueryContext(ctx, helper.ParseSql(sqlStr), author)
 	if err != nil {
-		return nil, err
+		return entitys, err
 	}
 
-	boards := make([]*Board, 0)
 	for rows.Next() {
-		board := new(Board)
-		err = rows.Scan(&board.Id, &board.Title, &board.Content, &board.Author, &board.Updated)
+		entity := new(BoardEntity)
+		err = rows.Scan(&entity.Id, &entity.Title, &entity.Content, &entity.Author, &entity.Updated)
 		if err != nil {
-			return nil, err
+			return entitys, err
 		}
 
-		boards = append(boards, board)
+		entitys = append(entitys, entity)
 	}
 
-	return boards, nil
+	return entitys, nil
 }
 
-func InsertBoard(board *Board) error {
+func InsertBoard(board *BoardEntity) error {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return err
@@ -135,15 +215,15 @@ func InsertBoard(board *Board) error {
 	return nil
 }
 
-func UpdateBoard(board *Board) error {
+func UpdateBoard(board *BoardEntity) error {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return err
 	}
 
-	ctx := context.Background()
 	sqlStr := `update board set title = ?, content = ? where id = ?`
 	fmt.Println(sqlStr)
+	ctx := context.Background()
 	res, err := conn.ExecContext(ctx, helper.ParseSql(sqlStr), board.Title, board.Content, board.Id)
 	if err != nil {
 		return err
@@ -167,9 +247,9 @@ func DeleteBoard(id int) error {
 		return err
 	}
 
-	ctx := context.Background()
 	sqlStr := `delete from board where id = ?`
 	fmt.Println(sqlStr)
+	ctx := context.Background()
 	res, err := conn.ExecContext(ctx, helper.ParseSql(sqlStr), id)
 	if err != nil {
 		return err
