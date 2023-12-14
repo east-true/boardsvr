@@ -6,9 +6,9 @@ import (
 )
 
 var database *DB = &DB{
-	User:        "test",
-	Password:    "testtest",
-	Destination: "127.0.0.1:3306",
+	User:     "test",
+	Password: "testtest",
+	Address:  "127.0.0.1:3306",
 }
 
 func TestLoad(t *testing.T) {
