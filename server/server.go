@@ -3,6 +3,7 @@ package server
 import (
 	"boardsvr/db"
 	"boardsvr/server/handler"
+	"boardsvr/server/helper/token"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
@@ -21,7 +22,7 @@ type Server struct {
 	ConfigPath string
 	ListenPort string
 	Prefix     string
-	DB         *db.DB
+	DB         *db.Mysql
 }
 
 func (svr *Server) Run() {
@@ -33,6 +34,7 @@ func (svr *Server) Run() {
 
 	engine := gin.Default()
 	engine.Use(cors.Default())
+	engine.Use(token.JwtVerify)
 	engine.Use(func(ctx *gin.Context) {
 		for key, val := range headers {
 			reqVal := ctx.Request.Header.Get(key)
