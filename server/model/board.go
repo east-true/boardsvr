@@ -2,6 +2,7 @@ package model
 
 import (
 	"boardsvr/db"
+	"boardsvr/server/helper"
 	"context"
 	"database/sql"
 	"errors"
@@ -29,7 +30,7 @@ func SelectBoardAll() ([]*Board, error) {
 		order by updated desc
 	`
 	fmt.Println(sqlStr)
-	rows, err := conn.QueryContext(ctx, db.Parse(sqlStr))
+	rows, err := conn.QueryContext(ctx, helper.ParseSql(sqlStr))
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +63,7 @@ func SelectBoardByID(id int) (*Board, error) {
 	`
 	fmt.Println(sqlStr)
 	board := new(Board)
-	row := conn.QueryRowContext(ctx, db.Parse(sqlStr), id)
+	row := conn.QueryRowContext(ctx, helper.ParseSql(sqlStr), id)
 	if row.Err() != nil {
 		return board, err
 	}
@@ -89,7 +90,7 @@ func SelectBoardByAuthor(author string) ([]*Board, error) {
 		order by updated desc
 	`
 	fmt.Println(sqlStr)
-	rows, err := conn.QueryContext(ctx, db.Parse(sqlStr), author)
+	rows, err := conn.QueryContext(ctx, helper.ParseSql(sqlStr), author)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +118,7 @@ func InsertBoard(board *Board) error {
 	ctx := context.Background()
 	sqlStr := `insert into board(title, content, author) values(?,?,?)`
 	fmt.Println(sqlStr)
-	res, err := conn.ExecContext(ctx, db.Parse(sqlStr), board.Title, board.Content, board.Author)
+	res, err := conn.ExecContext(ctx, helper.ParseSql(sqlStr), board.Title, board.Content, board.Author)
 	if err != nil {
 		return err
 	}
@@ -143,7 +144,7 @@ func UpdateBoard(board *Board) error {
 	ctx := context.Background()
 	sqlStr := `update board set title = ?, content = ? where id = ?`
 	fmt.Println(sqlStr)
-	res, err := conn.ExecContext(ctx, db.Parse(sqlStr), board.Title, board.Content, board.Id)
+	res, err := conn.ExecContext(ctx, helper.ParseSql(sqlStr), board.Title, board.Content, board.Id)
 	if err != nil {
 		return err
 	}
@@ -169,7 +170,7 @@ func DeleteBoard(id int) error {
 	ctx := context.Background()
 	sqlStr := `delete from board where id = ?`
 	fmt.Println(sqlStr)
-	res, err := conn.ExecContext(ctx, db.Parse(sqlStr), id)
+	res, err := conn.ExecContext(ctx, helper.ParseSql(sqlStr), id)
 	if err != nil {
 		return err
 	}

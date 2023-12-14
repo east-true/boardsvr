@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"strings"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -14,27 +13,19 @@ var instance *DB = nil
 
 func GetInstance() (*sql.Conn, error) {
 	if instance == nil {
-		return nil, errors.New("not loaded database instance")
+		instance.Load()
 	}
 
-	duration := 10 * time.Second
-	ctx, _ := context.WithTimeout(context.Background(), duration)
-
+	dur := time.Duration(instance.ConnTimeout) * time.Second
+	ctx, _ := context.WithTimeout(context.Background(), dur)
 	return instance.db.Conn(ctx)
-}
-
-func Parse(sql string) string {
-	sqlLines := strings.Split(sql, "\n")
-	for i, line := range sqlLines {
-		sqlLines[i] = strings.TrimSpace(line)
-	}
-	return strings.Join(sqlLines, " ")
 }
 
 type DB struct {
 	User        string
 	Password    string
-	Destination string
+	Address     string
+	ConnTimeout int
 
 	db *sql.DB
 }
@@ -48,7 +39,7 @@ func (db *DB) Load() error {
 		User:      db.User,
 		Passwd:    db.Password,
 		Net:       "tcp",
-		Addr:      db.Destination,
+		Addr:      db.Address,
 		DBName:    "boardsvr",
 		ParseTime: true,
 	}

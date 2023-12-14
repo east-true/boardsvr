@@ -2,6 +2,7 @@ package model
 
 import (
 	"boardsvr/db"
+	"boardsvr/server/helper"
 	"context"
 	"database/sql"
 	"errors"
@@ -28,7 +29,7 @@ func SelectUserByID(id string) (*User, error) {
 		WHERE id = ?
 	`
 	fmt.Println(sqlStr)
-	row := conn.QueryRowContext(ctx, db.Parse(sqlStr), id)
+	row := conn.QueryRowContext(ctx, helper.ParseSql(sqlStr), id)
 	if row.Err() != nil {
 		return nil, row.Err()
 	}
@@ -51,7 +52,7 @@ func InsertUser(user *User) error {
 	ctx := context.Background()
 	sqlStr := `insert into User(id, pwd, email) values(?,?,?)`
 	fmt.Println(sqlStr)
-	res, err := conn.ExecContext(ctx, db.Parse(sqlStr), user.ID, user.Pwd, user.Email)
+	res, err := conn.ExecContext(ctx, helper.ParseSql(sqlStr), user.ID, user.Pwd, user.Email)
 	if err != nil {
 		return err
 	}
@@ -77,7 +78,7 @@ func UpdateUser(user *User) error {
 	ctx := context.Background()
 	sqlStr := `update user set pwd = ?, email = ? where id = ?`
 	fmt.Println(sqlStr)
-	res, err := conn.ExecContext(ctx, db.Parse(sqlStr), "", user.Pwd, user.Email)
+	res, err := conn.ExecContext(ctx, helper.ParseSql(sqlStr), "", user.Pwd, user.Email)
 	if err != nil {
 		return err
 	}
@@ -103,7 +104,7 @@ func DeleteUser(id int) error {
 	ctx := context.Background()
 	sqlStr := `delete from user where id = ?`
 	fmt.Println(sqlStr)
-	res, err := conn.ExecContext(ctx, db.Parse(sqlStr), id)
+	res, err := conn.ExecContext(ctx, helper.ParseSql(sqlStr), id)
 	if err != nil {
 		return err
 	}
