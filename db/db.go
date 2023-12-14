@@ -9,7 +9,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-var instance *DB = nil
+var instance *Mysql = nil
 
 func GetInstance() (*sql.Conn, error) {
 	if instance == nil {
@@ -21,16 +21,16 @@ func GetInstance() (*sql.Conn, error) {
 	return instance.db.Conn(ctx)
 }
 
-type DB struct {
-	User        string
-	Password    string
-	Address     string
-	ConnTimeout int
+type Mysql struct {
+	User        string `json:"username"`
+	Password    string `json:"password"`
+	Address     string `json:"address"`
+	ConnTimeout int    `json:"connection_timeout"`
 
 	db *sql.DB
 }
 
-func (db *DB) Load() error {
+func (db *Mysql) Load() error {
 	if instance != nil {
 		return errors.New("already database instance")
 	}
@@ -53,6 +53,6 @@ func (db *DB) Load() error {
 	}
 }
 
-func (db *DB) Close() {
+func (db *Mysql) Close() {
 	db.db.Close()
 }

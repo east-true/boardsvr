@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var database *DB = &DB{
+var database *Mysql = &Mysql{
 	User:     "test",
 	Password: "testtest",
 	Address:  "127.0.0.1:3306",
