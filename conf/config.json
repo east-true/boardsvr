@@ -1,10 +1,10 @@
 {
     "ConfigPath": "confPath",
     "ListenPort": ":50007",
-    "Prefix":     "/api",
+    "Prefix": "/api",
     "DB": {
-        "User":        "test",
-        "Password":    "testtest",
-        "Destination": "127.0.0.1:3306"
+        "Address": "127.0.0.1:3306",
+        "User": "test",
+        "Password": "testtest"
     }
 }
