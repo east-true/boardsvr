@@ -12,6 +12,9 @@ import (
 )
 
 var secret []byte
+var AnonymousUrls map[string]bool = map[string]bool{
+	"/api/login": true,
+}
 
 func init() {
 	idgen, _ := uuid.NewRandom()
@@ -20,6 +23,10 @@ func init() {
 }
 
 func JwtVerify(ctx *gin.Context) {
+	if _, ok := AnonymousUrls[ctx.Request.RequestURI]; ok {
+		ctx.Next()
+	}
+
 	auth := ctx.Request.Header.Get("authorization")
 	if strings.HasPrefix(auth, "Bearer") {
 		token := strings.Split(auth, " ")[1]
