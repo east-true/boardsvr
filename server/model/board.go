@@ -189,7 +189,7 @@ func SelectBoardByAuthor(author string) ([]*BoardEntity, error) {
 	return entitys, nil
 }
 
-func InsertBoard(board *BoardEntity) error {
+func InsertBoard(board *BoardDTO) error {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return err
@@ -215,7 +215,7 @@ func InsertBoard(board *BoardEntity) error {
 	return nil
 }
 
-func UpdateBoard(board *BoardEntity) error {
+func UpdateBoard(board *BoardDTO) error {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return err

@@ -11,17 +11,17 @@ import (
 func GetBoardList(ctx *gin.Context) {
 	obj := new(model.BoardDTO)
 	ctx.BindQuery(obj)
-	var res []*model.BoardEntity
+	var entitys []*model.BoardEntity
 	var err error
 	if obj.Author == "" {
-		res, err = model.SelectBoardAll()
+		entitys, err = model.SelectBoardAll()
 		if err != nil {
 			fmt.Println(err)
 			ctx.Status(http.StatusInternalServerError)
 			return
 		}
 	} else {
-		res, err = model.SelectBoardByAuthor(obj.Author)
+		entitys, err = model.SelectBoardByAuthor(obj.Author)
 		if err != nil {
 			fmt.Println(err)
 			ctx.Status(http.StatusInternalServerError)
@@ -29,24 +29,28 @@ func GetBoardList(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, res)
+	dtos := make([]*model.BoardDTO, len(entitys))
+	for i, entity := range entitys {
+		dtos[i] = entity.ToDTO()
+	}
+	ctx.JSON(http.StatusOK, dtos)
 }
 
 func GetBoard(ctx *gin.Context) {
-	obj := new(model.BoardEntity)
+	obj := new(model.BoardDTO)
 	ctx.BindUri(obj)
-	res, err := model.SelectBoardByID(int(obj.Id.Int32))
+	entity, err := model.SelectBoardByID(obj.Id)
 	if err != nil {
 		fmt.Println(err)
 		ctx.Status(http.StatusInternalServerError)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, res)
+	ctx.JSON(http.StatusOK, entity.ToDTO())
 }
 
 func AddBoard(ctx *gin.Context) {
-	obj := new(model.BoardEntity)
+	obj := new(model.BoardDTO)
 	if err := ctx.Bind(obj); err != nil {
 		ctx.Status(http.StatusUnprocessableEntity)
 	} else {
@@ -62,7 +66,7 @@ func AddBoard(ctx *gin.Context) {
 }
 
 func EditBoard(ctx *gin.Context) {
-	obj := new(model.BoardEntity)
+	obj := new(model.BoardDTO)
 	if err := ctx.BindJSON(obj); err != nil {
 		ctx.Status(http.StatusUnprocessableEntity)
 	} else {
@@ -78,9 +82,9 @@ func EditBoard(ctx *gin.Context) {
 }
 
 func RemoveBoard(ctx *gin.Context) {
-	obj := new(model.BoardEntity)
+	obj := new(model.BoardDTO)
 	ctx.BindUri(obj)
-	err := model.DeleteBoard(int(obj.Id.Int32))
+	err := model.DeleteBoard(obj.Id)
 	if err != nil {
 		fmt.Println(err)
 		ctx.Status(http.StatusInternalServerError)
