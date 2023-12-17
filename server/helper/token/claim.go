@@ -48,7 +48,7 @@ func (c *Claims) Expired() bool {
 	return c.ExpiresAt.Time.After(time.Now())
 }
 
-func (c *Claims) store() error {
+func (c *Claims) Store() error {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set
