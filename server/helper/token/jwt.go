@@ -43,9 +43,11 @@ func NewAuthToken(role string) *AuthToken {
 	id := idgen.String()
 	access := NewClaims(id, role, now, 10*time.Minute)
 	refresh := NewClaims(id, role, now, 1*time.Hour)
-	if err := refresh.Store(); err != nil {
-		return nil
-	}
+
+	// TODO
+	// if err := refresh.Store(); err != nil {
+	// 	return nil
+	// }
 
 	return &AuthToken{
 		Access:  access,
