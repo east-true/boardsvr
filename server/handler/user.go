@@ -21,6 +21,11 @@ func Login(ctx *gin.Context) {
 	}
 
 	dto := entity.ToDTO()
+	if dto.Pwd != obj.Pwd {
+		ctx.Status(http.StatusForbidden)
+		return
+	}
+
 	token := token.NewAuthToken(dto.Role)
 	access, _, err := token.GetTokens()
 	if err != nil {
@@ -29,11 +34,15 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
+	// TODO: store refresh token in redis
+
 	ctx.Header("authorization", access)
 	ctx.Status(http.StatusOK)
 }
 
 func Logout(ctx *gin.Context) {
+
+	// TODO : remove stored token
 
 	ctx.Status(http.StatusOK)
 }
@@ -53,11 +62,29 @@ func AddUser(ctx *gin.Context) {
 }
 
 func EditUser(ctx *gin.Context) {
+	obj := new(model.UserDTO)
+	ctx.BindJSON(obj)
+
+	err := model.UpdateUser(obj)
+	if err != nil {
+		fmt.Println(err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
 
 	ctx.Status(http.StatusOK)
 }
 
 func RemoveUser(ctx *gin.Context) {
+	obj := new(model.BoardDTO)
+	ctx.BindQuery(obj)
+
+	err := model.DeleteUser(obj.Id)
+	if err != nil {
+		fmt.Println(err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
 
 	ctx.Status(http.StatusOK)
 }
