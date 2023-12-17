@@ -1,10 +1,11 @@
 {
-    "ConfigPath": "confPath",
-    "ListenPort": ":50007",
-    "Prefix": "/api",
-    "DB": {
-        "Address": "127.0.0.1:3306",
-        "User": "test",
-        "Password": "testtest"
+    "configPath": "confPath",
+    "listenPort": ":50007",
+    "prefix": "/api",
+    "db": {
+        "address": "127.0.0.1:3306",
+        "username": "test",
+        "password": "testtest",
+        "connection_timeout": 10
     }
 }
