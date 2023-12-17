@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"boardsvr/server/helper/token"
 	"boardsvr/server/model"
 	"fmt"
 	"net/http"
@@ -9,11 +10,26 @@ import (
 )
 
 func Login(ctx *gin.Context) {
-	obj := new(model.User)
+	obj := new(model.UserDTO)
 	ctx.BindJSON(obj)
 
-	// TODO : valid pwd by id
+	entity, err := model.SelectUserByID(obj.ID)
+	if err != nil {
+		fmt.Println(err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
 
+	dto := entity.ToDTO()
+	token := token.NewAuthToken(dto.Role)
+	access, _, err := token.GetTokens()
+	if err != nil {
+		fmt.Println(err)
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.Header("authorization", access)
 	ctx.Status(http.StatusOK)
 }
 
@@ -23,7 +39,7 @@ func Logout(ctx *gin.Context) {
 }
 
 func AddUser(ctx *gin.Context) {
-	obj := new(model.User)
+	obj := new(model.UserDTO)
 	ctx.BindJSON(obj)
 
 	err := model.InsertUser(obj)

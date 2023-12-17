@@ -7,16 +7,72 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 )
 
-type User struct {
-	ID      string       `json:"user_id"`
-	Pwd     string       `json:"user_pwd"`
-	Email   string       `json:"user_email"`
-	Created sql.NullTime `json:"user_created"`
+type UserDTO struct {
+	ID      string    `json:"user_id"`
+	Pwd     string    `json:"user_pwd"`
+	Email   string    `json:"user_email"`
+	Role    string    `json:"user_role"`
+	Created time.Time `json:"user_created"`
 }
 
-func SelectUserByID(id string) (*User, error) {
+func (dto *UserDTO) ToEntity() *UserEntity {
+	entity := new(UserEntity)
+
+	if err := entity.ID.Scan(dto.ID); err != nil {
+		return nil
+	}
+
+	if err := entity.Pwd.Scan(dto.Pwd); err != nil {
+		return nil
+	}
+
+	if err := entity.Email.Scan(dto.Email); err != nil {
+		return nil
+	}
+
+	if err := entity.Created.Scan(dto.Created); err != nil {
+		return nil
+	}
+
+	return entity
+}
+
+type UserEntity struct {
+	ID      sql.NullString
+	Pwd     sql.NullString
+	Email   sql.NullString
+	Created sql.NullTime
+}
+
+func (entity *UserEntity) ToDTO() *UserDTO {
+	if !entity.ID.Valid {
+		return nil
+	}
+
+	if !entity.Pwd.Valid {
+		return nil
+	}
+
+	if !entity.Email.Valid {
+		return nil
+	}
+
+	if !entity.Created.Valid {
+		return nil
+	}
+
+	return &UserDTO{
+		ID:      entity.ID.String,
+		Pwd:     entity.Pwd.String,
+		Email:   entity.Email.String,
+		Created: entity.Created.Time,
+	}
+}
+
+func SelectUserByID(id string) (*UserEntity, error) {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return nil, err
@@ -34,16 +90,16 @@ func SelectUserByID(id string) (*User, error) {
 		return nil, row.Err()
 	}
 
-	user := new(User)
-	err = row.Scan(&user.ID, &user.Pwd, &user.Email, &user.Created)
+	entity := new(UserEntity)
+	err = row.Scan(&entity.ID, &entity.Pwd, &entity.Email, &entity.Created)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, err
+	return entity, err
 }
 
-func InsertUser(user *User) error {
+func InsertUser(user *UserDTO) error {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return err
@@ -69,7 +125,7 @@ func InsertUser(user *User) error {
 	return nil
 }
 
-func UpdateUser(user *User) error {
+func UpdateUser(user *UserDTO) error {
 	conn, err := db.GetInstance()
 	if err != nil {
 		return err
