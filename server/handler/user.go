@@ -34,8 +34,6 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: store refresh token in redis
-
 	ctx.Header("authorization", access)
 	ctx.Status(http.StatusOK)
 }

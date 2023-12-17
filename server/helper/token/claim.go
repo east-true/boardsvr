@@ -2,6 +2,7 @@ package token
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -58,7 +59,12 @@ func (c *Claims) Store() error {
 	defer conn.Close()
 
 	ctx := context.Background()
-	err := conn.Set(ctx, c.Subject, c, c.ExpiresAt.Sub(time.Now())).Err()
+	token, err := c.Token()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = conn.Set(ctx, c.Subject, token, c.ExpiresAt.Sub(time.Now())).Err()
 	if err != nil {
 		return err
 	}

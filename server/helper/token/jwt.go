@@ -2,6 +2,7 @@ package token
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -50,11 +51,10 @@ func NewAuthToken(role string) *AuthToken {
 	id := idgen.String()
 	access := NewClaims(id, role, now, 10*time.Minute)
 	refresh := NewClaims(id, role, now, 1*time.Hour)
-
-	// TODO
-	// if err := refresh.Store(); err != nil {
-	// 	return nil
-	// }
+	if err := refresh.Store(); err != nil {
+		fmt.Println(err)
+		return nil
+	}
 
 	return &AuthToken{
 		Access:  access,
