@@ -1,8 +1,7 @@
-package redis_test
+package db_test
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/redis/go-redis/v9"
@@ -16,6 +15,8 @@ func TestExampleClient(t *testing.T) {
 		DB:       0,  // use default DB
 	})
 
+	defer rdb.Close()
+
 	err := rdb.Set(ctx, "key", "value", 0).Err()
 	if err != nil {
 		t.Error(err)
@@ -27,17 +28,11 @@ func TestExampleClient(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	fmt.Println("key", val)
+	t.Logf("key %s", val)
 
-	val2, err := rdb.Get(ctx, "key2").Result()
-	if err == redis.Nil {
-		t.Log("key2 does not exist")
-	} else if err != nil {
-		t.Error(err)
+	val2 := rdb.Del(ctx, "key")
+	if val2.Err() != nil {
+		t.Error(val2.Err())
 		return
-	} else {
-		fmt.Println("key2", val2)
 	}
-	// Output: key value
-	// key2 does not exist
 }

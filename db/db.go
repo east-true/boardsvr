@@ -9,16 +9,16 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-var instance *Mysql = nil
+var _mysql *Mysql = nil
 
 func GetInstance() (*sql.Conn, error) {
-	if instance == nil {
-		instance.Load()
+	if _mysql == nil {
+		return nil, errors.New("not loaded mysql")
 	}
 
-	dur := time.Duration(instance.ConnTimeout) * time.Second
+	dur := time.Duration(_mysql.ConnTimeout) * time.Second
 	ctx, _ := context.WithTimeout(context.Background(), dur)
-	return instance.db.Conn(ctx)
+	return _mysql.db.Conn(ctx)
 }
 
 type Mysql struct {
@@ -31,7 +31,7 @@ type Mysql struct {
 }
 
 func (db *Mysql) Load() error {
-	if instance != nil {
+	if _mysql != nil {
 		return errors.New("already database instance")
 	}
 
@@ -48,7 +48,7 @@ func (db *Mysql) Load() error {
 		return err
 	} else {
 		db.db = sqlDB
-		instance = db
+		_mysql = db
 		return db.db.Ping()
 	}
 }
