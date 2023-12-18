@@ -33,6 +33,7 @@ func JwtVerify(ctx *gin.Context) {
 		token := strings.Split(auth, " ")[1]
 		claim := new(Claims)
 		if claim.Verify(token) {
+			ctx.Set("claim", claim)
 			return
 		}
 	}

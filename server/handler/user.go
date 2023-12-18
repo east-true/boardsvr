@@ -3,10 +3,12 @@ package handler
 import (
 	"boardsvr/server/helper/token"
 	"boardsvr/server/model"
+	"context"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
 func Login(ctx *gin.Context) {
@@ -39,8 +41,30 @@ func Login(ctx *gin.Context) {
 }
 
 func Logout(ctx *gin.Context) {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 
-	// TODO : remove stored token
+	defer rdb.Close()
+	val, ok := ctx.Get("claim")
+	if !ok {
+		ctx.Status(http.StatusInternalServerError)
+		return
+	} else {
+		claim, ok := val.(*token.Claims)
+		if !ok {
+			ctx.Status(http.StatusInternalServerError)
+			return
+		}
+
+		result := rdb.Del(context.Background(), claim.Subject)
+		if result.Err() != nil {
+			ctx.Status(http.StatusInternalServerError)
+			return
+		}
+	}
 
 	ctx.Status(http.StatusOK)
 }
