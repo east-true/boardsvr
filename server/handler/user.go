@@ -13,11 +13,11 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func Login(ctx *gin.Context) {
+func (h *Handler) Login(ctx *gin.Context) {
 	obj := new(model.UserDTO)
 	ctx.BindJSON(obj)
 
-	entity, err := model.SelectUserByID(obj.ID)
+	entity, err := h.user.SelectUserByID(obj.ID)
 	if err != nil {
 		fmt.Println(err)
 		ctx.Status(http.StatusInternalServerError)
@@ -42,7 +42,7 @@ func Login(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-func Logout(ctx *gin.Context) {
+func (h *Handler) Logout(ctx *gin.Context) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set
@@ -71,11 +71,11 @@ func Logout(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-func AddUser(ctx *gin.Context) {
+func (h *Handler) AddUser(ctx *gin.Context) {
 	obj := new(model.UserDTO)
 	ctx.BindJSON(obj)
 
-	err := model.InsertUser(obj)
+	err := h.user.InsertUser(obj)
 	if err != nil {
 		fmt.Println(err)
 		ctx.Status(http.StatusInternalServerError)
@@ -85,11 +85,11 @@ func AddUser(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-func EditUser(ctx *gin.Context) {
+func (h *Handler) EditUser(ctx *gin.Context) {
 	obj := new(model.UserDTO)
 	ctx.BindJSON(obj)
 
-	err := model.UpdateUser(obj)
+	err := h.user.UpdateUser(obj)
 	if err != nil {
 		fmt.Println(err)
 		ctx.Status(http.StatusInternalServerError)
@@ -99,11 +99,11 @@ func EditUser(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-func RemoveUser(ctx *gin.Context) {
+func (h *Handler) RemoveUser(ctx *gin.Context) {
 	obj := new(model.BoardDTO)
 	ctx.BindQuery(obj)
 
-	err := model.DeleteUser(obj.Id)
+	err := h.user.DeleteUser(obj.Id)
 	if err != nil {
 		fmt.Println(err)
 		ctx.Status(http.StatusInternalServerError)

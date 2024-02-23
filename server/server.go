@@ -2,6 +2,7 @@ package server
 
 import (
 	"boardsvr/server/handler"
+	"boardsvr/server/model"
 	"net/http"
 
 	"github.com/east-true/auth-go/jwt"
@@ -18,6 +19,8 @@ var headers map[string]string = map[string]string{
 }
 
 type Server struct {
+	model.Model
+
 	ConfigPath string
 	ListenPort string
 	Prefix     string
@@ -41,6 +44,8 @@ func (svr *Server) Run() {
 		ctx.JSON(http.StatusOK, gin.H{"main": "hello"})
 	})
 
+	svr.Model.Open()
+	handler := handler.New(&svr.Model)
 	router := engine.Group(svr.Prefix)
 	router.POST("/login", handler.Login)
 	router.POST("/logout", handler.Logout)
