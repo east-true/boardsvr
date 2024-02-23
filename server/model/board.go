@@ -1,105 +1,16 @@
 package model
 
 import (
-	"boardsvr/db"
 	"boardsvr/server/helper"
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
-	"time"
 )
 
-type BoardDTO struct {
-	Id      int       `json:"board_id" uri:"board_id"`
-	Title   string    `json:"title"`
-	Content string    `json:"content"`
-	Author  string    `json:"author" form:"author"`
-	Updated time.Time `json:"updated"`
-}
-
-func (dto *BoardDTO) ToEntity() *BoardEntity {
-	var id sql.NullInt32
-	var title sql.NullString
-	var content sql.NullString
-	var author sql.NullString
-	var updated sql.NullTime
-
-	err := id.Scan(dto.Id)
-	if err != nil {
-		return nil
-	}
-
-	err = title.Scan(dto.Title)
-	if err != nil {
-		return nil
-	}
-
-	err = content.Scan(dto.Content)
-	if err != nil {
-		return nil
-	}
-
-	err = author.Scan(dto.Author)
-	if err != nil {
-		return nil
-	}
-
-	err = updated.Scan(dto.Updated)
-	if err != nil {
-		return nil
-	}
-
-	return &BoardEntity{
-		Id:      id,
-		Title:   title,
-		Content: content,
-		Author:  author,
-		Updated: updated,
-	}
-}
-
-type BoardEntity struct {
-	Id      sql.NullInt32
-	Title   sql.NullString
-	Content sql.NullString
-	Author  sql.NullString
-	Updated sql.NullTime
-}
-
-func (entity *BoardEntity) ToDTO() *BoardDTO {
-	if !entity.Id.Valid {
-		return nil
-	}
-
-	if !entity.Title.Valid {
-		return nil
-	}
-
-	if !entity.Content.Valid {
-		return nil
-	}
-
-	if !entity.Author.Valid {
-		return nil
-	}
-
-	if !entity.Updated.Valid {
-		return nil
-	}
-
-	return &BoardDTO{
-		Id:      int(entity.Id.Int32),
-		Title:   entity.Title.String,
-		Content: entity.Content.String,
-		Author:  entity.Content.String,
-		Updated: entity.Updated.Time,
-	}
-}
-
-func SelectBoardAll() ([]*BoardEntity, error) {
+func (m *Model) SelectBoardAll() ([]*BoardEntity, error) {
 	entitys := make([]*BoardEntity, 0)
-	conn, err := db.GetInstance()
+	ctx := context.Background()
+	conn, err := m.instance.Conn(ctx)
 	if err != nil {
 		return entitys, err
 	}
@@ -110,8 +21,7 @@ func SelectBoardAll() ([]*BoardEntity, error) {
 	order by updated desc
 	`
 	fmt.Println(sqlStr)
-	ctx := context.Background()
-	rows, err := conn.QueryContext(ctx, helper.ParseSql(sqlStr))
+	rows, err := conn.QueryContext(ctx, helper.FormatSql(sqlStr))
 	if err != nil {
 		return entitys, err
 	}
@@ -129,8 +39,9 @@ func SelectBoardAll() ([]*BoardEntity, error) {
 	return entitys, nil
 }
 
-func SelectBoardByID(id int) (*BoardEntity, error) {
-	conn, err := db.GetInstance()
+func (m *Model) SelectBoardByID(id int) (*BoardEntity, error) {
+	ctx := context.Background()
+	conn, err := m.instance.Conn(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -141,8 +52,7 @@ func SelectBoardByID(id int) (*BoardEntity, error) {
 		where id = ?
 	`
 	fmt.Println(sqlStr)
-	ctx := context.Background()
-	row := conn.QueryRowContext(ctx, helper.ParseSql(sqlStr), id)
+	row := conn.QueryRowContext(ctx, helper.FormatSql(sqlStr), id)
 	if row.Err() != nil {
 		return nil, err
 	}
@@ -156,22 +66,22 @@ func SelectBoardByID(id int) (*BoardEntity, error) {
 	return entity, nil
 }
 
-func SelectBoardByAuthor(author string) ([]*BoardEntity, error) {
+func (m *Model) SelectBoardByAuthor(author string) ([]*BoardEntity, error) {
 	entitys := make([]*BoardEntity, 0)
-	conn, err := db.GetInstance()
+	ctx := context.Background()
+	conn, err := m.instance.Conn(ctx)
 	if err != nil {
-		return entitys, err
+		return nil, err
 	}
 
 	sqlStr := `
-		select id, title, content, author, updated 
-		from board 
+	select id, title, content, author, updated 
+	from board 
 		where author = ?
 		order by updated desc
 	`
 	fmt.Println(sqlStr)
-	ctx := context.Background()
-	rows, err := conn.QueryContext(ctx, helper.ParseSql(sqlStr), author)
+	rows, err := conn.QueryContext(ctx, helper.FormatSql(sqlStr), author)
 	if err != nil {
 		return entitys, err
 	}
@@ -189,16 +99,16 @@ func SelectBoardByAuthor(author string) ([]*BoardEntity, error) {
 	return entitys, nil
 }
 
-func InsertBoard(board *BoardDTO) error {
-	conn, err := db.GetInstance()
+func (m *Model) InsertBoard(board *BoardDTO) error {
+	ctx := context.Background()
+	conn, err := m.instance.Conn(ctx)
 	if err != nil {
 		return err
 	}
 
-	ctx := context.Background()
 	sqlStr := `insert into board(title, content, author) values(?,?,?)`
 	fmt.Println(sqlStr)
-	res, err := conn.ExecContext(ctx, helper.ParseSql(sqlStr), board.Title, board.Content, board.Author)
+	res, err := conn.ExecContext(ctx, helper.FormatSql(sqlStr), board.Title, board.Content, board.Author)
 	if err != nil {
 		return err
 	}
@@ -215,16 +125,16 @@ func InsertBoard(board *BoardDTO) error {
 	return nil
 }
 
-func UpdateBoard(board *BoardDTO) error {
-	conn, err := db.GetInstance()
+func (m *Model) UpdateBoard(board *BoardDTO) error {
+	ctx := context.Background()
+	conn, err := m.instance.Conn(ctx)
 	if err != nil {
 		return err
 	}
 
 	sqlStr := `update board set title = ?, content = ? where id = ?`
 	fmt.Println(sqlStr)
-	ctx := context.Background()
-	res, err := conn.ExecContext(ctx, helper.ParseSql(sqlStr), board.Title, board.Content, board.Id)
+	res, err := conn.ExecContext(ctx, helper.FormatSql(sqlStr), board.Title, board.Content, board.Id)
 	if err != nil {
 		return err
 	}
@@ -241,16 +151,16 @@ func UpdateBoard(board *BoardDTO) error {
 	return nil
 }
 
-func DeleteBoard(id int) error {
-	conn, err := db.GetInstance()
+func (m *Model) DeleteBoard(id int) error {
+	ctx := context.Background()
+	conn, err := m.instance.Conn(ctx)
 	if err != nil {
 		return err
 	}
 
 	sqlStr := `delete from board where id = ?`
 	fmt.Println(sqlStr)
-	ctx := context.Background()
-	res, err := conn.ExecContext(ctx, helper.ParseSql(sqlStr), id)
+	res, err := conn.ExecContext(ctx, helper.FormatSql(sqlStr), id)
 	if err != nil {
 		return err
 	}
