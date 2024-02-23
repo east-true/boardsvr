@@ -1,11 +1,10 @@
 package server
 
 import (
-	"boardsvr/db"
 	"boardsvr/server/handler"
-	"boardsvr/server/helper/token"
 	"net/http"
 
+	"github.com/east-true/auth-go/jwt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -22,19 +21,12 @@ type Server struct {
 	ConfigPath string
 	ListenPort string
 	Prefix     string
-	DB         *db.Mysql
 }
 
 func (svr *Server) Run() {
-	if err := svr.DB.Load(); err != nil {
-		panic(err)
-	} else {
-		defer svr.DB.Close()
-	}
-
 	engine := gin.Default()
 	engine.Use(cors.Default())
-	engine.Use(token.JwtVerify)
+	engine.Use(jwt.JwtVerify)
 	engine.Use(func(ctx *gin.Context) {
 		for key, val := range headers {
 			reqVal := ctx.Request.Header.Get(key)

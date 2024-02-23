@@ -1,11 +1,13 @@
 package handler
 
 import (
-	"boardsvr/server/helper/token"
 	"boardsvr/server/model"
 	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/east-true/auth-go/jwt"
+	"github.com/east-true/auth-go/jwt/claims"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -28,7 +30,7 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	token := token.NewAuthToken(dto.Role)
+	token := jwt.NewAuthToken(dto.Role)
 	access, _, err := token.GetTokens()
 	if err != nil {
 		fmt.Println(err)
@@ -53,7 +55,7 @@ func Logout(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 		return
 	} else {
-		claim, ok := val.(*token.Claims)
+		claim, ok := val.(*claims.Claims)
 		if !ok {
 			ctx.Status(http.StatusInternalServerError)
 			return

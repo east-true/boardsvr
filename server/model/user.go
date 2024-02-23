@@ -7,6 +7,13 @@ import (
 	"fmt"
 )
 
+type UserAdaptor interface {
+	SelectUserByID(id string) (*UserEntity, error)
+	InsertUser(user *UserDTO) error
+	UpdateUser(user *UserDTO) error
+	DeleteUser(id int) error
+}
+
 func (m *Model) SelectUserByID(id string) (*UserEntity, error) {
 	ctx := context.Background()
 	conn, err := m.instance.Conn(ctx)

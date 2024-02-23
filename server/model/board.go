@@ -7,6 +7,15 @@ import (
 	"fmt"
 )
 
+type BoardAdaptor interface {
+	SelectBoardAll() ([]*BoardEntity, error)
+	SelectBoardByID(id int) (*BoardEntity, error)
+	SelectBoardByAuthor(author string) ([]*BoardEntity, error)
+	InsertBoard(board *BoardDTO) error
+	UpdateBoard(board *BoardDTO) error
+	DeleteBoard(id int) error
+}
+
 func (m *Model) SelectBoardAll() ([]*BoardEntity, error) {
 	entitys := make([]*BoardEntity, 0)
 	ctx := context.Background()
