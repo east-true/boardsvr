@@ -16,7 +16,7 @@ func main() {
 		return
 	}
 	dir := filepath.Dir(path)
-	confPath = filepath.Join(dir, "conf", "config.json")
+	confPath = filepath.Join(dir, "arch", "config.json")
 
 	b, err := os.ReadFile(confPath)
 	if err != nil {
